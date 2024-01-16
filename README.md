@@ -1,2 +1,2 @@
 # CellularAutomaton
-Third homework for the PDS Course - January 2024
+Third homework for the Parallel & Distributed Systems Course
