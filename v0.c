@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-int isingStep(int **gridInput, int **gridOutput, int n);
+void isingStep(int **gridInput, int **gridOutput, int n);
 int **gridInit(int n);
+void takeInput(const char *filename, int **array, int n);
 void fillGrid(int **grid, int n);
 void printGrid(int **grid, int n);
 
@@ -12,7 +13,8 @@ int main() {
     srand(time(NULL));
 
 	// define problem dimension
-	int n = 5;
+	int n = 7;
+	int k = 10;
 	
 	// grid initialization
 	int **grid1 = gridInit(n);
@@ -21,31 +23,31 @@ int main() {
 	if(!grid1 || !grid2)
 		return 1;
 	
-	// initial state randomization
-	fillGrid(grid1, n);
+	// initial state
+	//fillGrid(grid1, n); //random
+	const char *filename = "input.txt";
+	takeInput(filename, grid1, n); //from file
 	
 	// print grids
-	printf("\nGrid 1:\n");
+	printf("\nInitial state:\n");
 	printGrid(grid1, n);
-	printf("\nGrid 2:\n");
-	printGrid(grid2, n);
 	
-	int counter;
-	while(counter < 100) {
-		if(isingStep(grid1, grid2, n) == 0)
-			break;
+	int counter = 0;
+	while(counter < k) {
+		isingStep(grid1, grid2, n);
 		counter++;
-		if(isingStep(grid2, grid1, n) == 0)
-			break;
+		if(counter == k) break;
+		isingStep(grid2, grid1, n);
 		counter++;
 	}
 	printf("\n\nCounter: %d\n\n", counter);
 	
 	// print grids
-	printf("\n---RESULTS---\nGrid 1:\n");
-	printGrid(grid1, n);
-	printf("\nGrid 2:\n");
-	printGrid(grid2, n);	
+	printf("\nResult:\n");
+	if(counter % 2)
+		printGrid(grid1, n);
+	else
+		printGrid(grid2, n);	
 	
 	// free allocated memory
 	for(int i = 0; i < n; i++) {
@@ -59,9 +61,8 @@ int main() {
 }
 
 // returns 0 if the output doesn't change
-int isingStep(int **gridInput, int **gridOutput, int n) {
+void isingStep(int **gridInput, int **gridOutput, int n) {
 	int buffer;
-	int flag = 0;
 	for(int i = 0; i < n; i++) {
 		for(int j = 0; j < n; j++) {
 			// add all neighboring values
@@ -72,10 +73,9 @@ int isingStep(int **gridInput, int **gridOutput, int n) {
 			buffer += gridInput[i][(j + 1) % n];
 			// keep the sign
 			gridOutput[i][j] = buffer / abs(buffer);
-			if(gridOutput[i][j] != gridInput[i][j]) flag = 1;
 		} 
 	}
-	return flag;
+	return;
 }
 
 int **gridInit(int n) {
@@ -105,7 +105,24 @@ int **gridInit(int n) {
 	return grid;
 }
 
-void fillGrid(int **grid, int n){
+void takeInput(const char *filename, int **array, int n) {
+	FILE *file = fopen(filename, "r");
+	if(file == NULL) {
+		perror("Error opening file");
+		exit(EXIT_FAILURE);
+	}
+	
+	for(int i = 0; i < n; i ++)
+		for(int j = 0; j <n; j++)
+		if(fscanf(file, "%d", &array[i][j]) != 1) {
+				fprintf(stderr, "Error reading from file");
+				exit(EXIT_FAILURE);
+		}
+	fclose(file);
+	return;
+}
+
+void fillGrid(int **grid, int n) {
 	// random value initialization
 	for(int i = 0; i < n; i++) {
 		for(int j = 0; j < n; j++)
