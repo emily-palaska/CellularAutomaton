@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <sys/time.h>
 
 void isingStep(int **gridInput, int **gridOutput, int n);
 int **gridInit(int n);
@@ -8,13 +8,20 @@ void takeInput(const char *filename, int **array, int n);
 void fillGrid(int **grid, int n);
 void printGrid(int **grid, int n);
 
-int main() {
+int main(int argc, char *argv[]) {
+	if (argc != 2) {
+		printf("Invalid arguments\n");
+		return 1;
+	}
+	
+	const char *filename = "input.txt"; //input file name
+	int n = 10000; 						// dimension
+	int k = atoi(argv[1]); 				// number of steps as file argument
+	int counter = 0;
+	struct timeval t1, t2;				// variables to count elapsed time
+	
 	// seed the random number generator with the current time
     srand(time(NULL));
-
-	// define problem dimension
-	int n = 7;
-	int k = 10;
 	
 	// grid initialization
 	int **grid1 = gridInit(n);
@@ -23,31 +30,44 @@ int main() {
 	if(!grid1 || !grid2)
 		return 1;
 	
-	// initial state
-	//fillGrid(grid1, n); //random
-	const char *filename = "input.txt";
-	takeInput(filename, grid1, n); //from file
+	///////////////////
+	// INITIAL STATE //
+	///////////////////
+		
+	//fillGrid(grid1, n); 				//random
+	takeInput(filename, grid1, n); 		//from txt file
+		
+	//printf("\nInitial state:\n");
+	//printGrid(grid1, n);
 	
-	// print grids
-	printf("\nInitial state:\n");
-	printGrid(grid1, n);
+	///////////////
+	// ALGORITHM //
+	///////////////
 	
-	int counter = 0;
+	gettimeofday(&t1, NULL);
 	while(counter < k) {
 		isingStep(grid1, grid2, n);
 		counter++;
-		if(counter == k) break;
+		if(counter == k)c break;
 		isingStep(grid2, grid1, n);
 		counter++;
 	}
-	printf("\n\nCounter: %d\n\n", counter);
+	gettimeofday(&t2, NULL);
+	double elapsedTime;
+	elapsedTime = (t2.tv_sec - t1.tv_sec);					// sec to ms
+    elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000000.0;   // us to s
 	
-	// print grids
-	printf("\nResult:\n");
-	if(counter % 2)
-		printGrid(grid1, n);
-	else
-		printGrid(grid2, n);	
+	////////////////
+	// DISPLAYING //
+	////////////////
+	
+	//printf("\nResult:\n");
+	//if(counter % 2)
+		//printGrid(grid2, n);
+	//else
+		//printGrid(grid1, n);	
+	
+	printf("Successful temination for: n = %d k = %d\nTime elapsed: %.4f seconds\n", n, k, elapsedTime);
 	
 	// free allocated memory
 	for(int i = 0; i < n; i++) {
@@ -60,7 +80,9 @@ int main() {
 	return 0;
 }
 
-// returns 0 if the output doesn't change
+// fucntion that perfoms one ising step, ie calculating one moment
+// ising step is defined as a 2d transformation where each element takes the sign of the majority
+// of its neighboring values' signs
 void isingStep(int **gridInput, int **gridOutput, int n) {
 	int buffer;
 	for(int i = 0; i < n; i++) {
@@ -78,6 +100,7 @@ void isingStep(int **gridInput, int **gridOutput, int n) {
 	return;
 }
 
+// function that allocates memory for a grid
 int **gridInit(int n) {
 	// double pointer allocation
 	int **grid = (int **)malloc(n * sizeof(int *));
@@ -105,6 +128,8 @@ int **gridInit(int n) {
 	return grid;
 }
 
+
+// function that takes the initial values of the grid from a txt file
 void takeInput(const char *filename, int **array, int n) {
 	FILE *file = fopen(filename, "r");
 	if(file == NULL) {
@@ -113,8 +138,8 @@ void takeInput(const char *filename, int **array, int n) {
 	}
 	
 	for(int i = 0; i < n; i ++)
-		for(int j = 0; j <n; j++)
-		if(fscanf(file, "%d", &array[i][j]) != 1) {
+		for(int j = 0; j < n; j++)
+			if(fscanf(file, "%d", &array[i][j]) != 1) {
 				fprintf(stderr, "Error reading from file");
 				exit(EXIT_FAILURE);
 		}
@@ -122,6 +147,7 @@ void takeInput(const char *filename, int **array, int n) {
 	return;
 }
 
+// function that takes the initial values of the grid at random
 void fillGrid(int **grid, int n) {
 	// random value initialization
 	for(int i = 0; i < n; i++) {
@@ -132,10 +158,13 @@ void fillGrid(int **grid, int n) {
 	return;
 }
 
+// auxialiary function to print the grid - mainly for checks
 void printGrid(int **grid, int n) {
 	for(int i = 0; i < n; i++) {
-		for(int j = 0; j < n; j++)
+		for(int j = 0; j < n; j++) {
+			if(grid[i][j] >= 0) printf("+");
 			printf("%d\t", grid[i][j]);
+		}
 		printf("\n");
 	}
 	return;
