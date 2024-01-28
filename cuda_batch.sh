@@ -7,5 +7,8 @@
 
 module load gcc/7.3.0 cuda/10.0.130
 
+gcc input.c -o inputGenerator
 nvcc cudaExample.cu -O3 -o output
-./output
+
+./inputGenerator 10000
+./output 10000
