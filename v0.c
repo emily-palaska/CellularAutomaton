@@ -128,7 +128,6 @@ int **gridInit(int n) {
 	return grid;
 }
 
-
 // function that takes the initial values of the grid from a txt file
 void takeInput(const char *filename, int **array, int n) {
 	FILE *file = fopen(filename, "r");

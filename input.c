@@ -30,7 +30,7 @@ void generateRandomValues(int n) {
 }
 
 int main(int argc, char *argv[]) {
-    int n = pow(2, atoi(argv[1]));
+    int n = atoi(argv[1]); // take dimension as argument
     
     // Call the function to generate random values and clear existing content
     generateRandomValues(n);

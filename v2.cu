@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include <math.h>
 
-# define bSize 16 // block size definition for easy access
+#define bSize 1024 // block size definition for easy access
 
 void takeInput(const char *filename, int *array, long n);
 void printArray(int *array, long n);
@@ -14,7 +13,7 @@ __global__ void isingStep(int *dArrayInput, int *dArrayOutput, long n, int threa
     int buffer;
     long i, j, startingIndex, endingIndex;
    	
-   	// find starting and ending indeces depending on number of work per thread
+   	// find starting and ending indices depending on number of work per thread
     startingIndex = idx * threadElements;
     
     if (idx < n * n / threadElements - 1)
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]) {
 		printf("Invalid arguments\n");
 		return 1;
 	}
-	long n = pow(2, atoi(argv[1]); 		// dimension taken as argument
+	long n = atoi(argv[1]);				// dimension taken as argument
 	const char *filename = "input.txt"; // input file name
 	int k = 500; 						// number of steps
 	int counter = 0;
@@ -84,6 +83,7 @@ int main(int argc, char *argv[]) {
 	// ALGORITHM //
 	///////////////
 	
+	// start timer
 	gettimeofday(&t1, NULL);
 	
 	// copy host vectors to device
@@ -107,7 +107,8 @@ int main(int argc, char *argv[]) {
     	cudaMemcpy(hArray, dArray2, n * n * sizeof(int), cudaMemcpyDeviceToHost);
     else
     	cudaMemcpy(hArray, dArray1, n * n * sizeof(int), cudaMemcpyDeviceToHost);
-    	
+    
+    // stop timer	
     gettimeofday(&t2, NULL);
 	double elapsedTime;
 	elapsedTime = (t2.tv_sec - t1.tv_sec);      // sec
@@ -124,7 +125,6 @@ int main(int argc, char *argv[]) {
 	//////////////////////////
 	// MEMORY DE-ALLOCATION //
 	//////////////////////////
-	
 
 	free(hArray);		// host
     cudaFree(dArray1);	// device

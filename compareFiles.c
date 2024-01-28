@@ -48,8 +48,8 @@ int compareFiles(const char *file1, const char *file2) {
 }
 
 int main() {
-	char *file1 = "file1.txt";
-	char *file2 = "file2.txt";
+	char *file1 = "file1.out";
+	char *file2 = "file2.out";
     if (!compareFiles(file1, file2))
     	printf("Files are exactly the same\n");
 

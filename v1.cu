@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-# define bSize 16 // block size definition for easy access
+#define bSize 1024 // block size definition for easy access
 
 void takeInput(const char *filename, int *array, int n);
 void printArray(int *array, long n);
@@ -36,8 +36,9 @@ int main(int argc, char *argv[]) {
 	}
 	
 	const char *filename = "input.txt"; // input file name
-	long n = 10; 						// dimension
-	int k = atoi(argv[1]); 				// number of steps taken as argument
+	
+	long n = atoi(argv[1]);				// dimension taken as argument
+	int k = 500;						// number of steps
 	int counter = 0;
 	struct timeval t1, t2;				// variables for elapsed time
 	
@@ -52,7 +53,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}	
 	
-	// host	
+	// device
 	int *dArray1, *dArray2;
 	cudaMalloc((void **)&dArray1, n * n * sizeof(int));
 	cudaMalloc((void **)&dArray2, n * n * sizeof(int));
@@ -62,9 +63,9 @@ int main(int argc, char *argv[]) {
 	///////////////////
 	
 	takeInput(filename, hArray, n);
-	printf("Initial state:\n");
-	printArray(hArray, n);
-	printf("\n\nFinal state:\n");
+	//printf("Initial state:\n");
+	//printArray(hArray, n);
+	//printf("\n\nFinal state:\n");
 	
 	///////////////
 	// ALGORITHM //
@@ -105,14 +106,12 @@ int main(int argc, char *argv[]) {
 	// DISPLAYING //
 	////////////////
 	
-	//printf("\nResult:\n");
-	printArray(hArray, n);
+	//printArray(hArray, n);
 	//printf("Successful temination for: n = %d k = %d\nTime elapsed: %.4f seconds\n", n, k, elapsedTime);
 	
 	//////////////////////////
 	// MEMORY DE-ALLOCATION //
 	//////////////////////////
-	
 	
 	free(hArray);		// host
     cudaFree(dArray1);	// device
